@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Didac-Click | EdTech GROUP</title>
+    
+    <!-- FAVICON TECH (Corchetes + D) -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='10' fill='%23050505'/%3E%3Cpath d='M25 25 L25 75 M75 25 L75 75' stroke='%23ffffff' stroke-width='8' fill='none'/%3E%3Ctext x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' font-family='monospace' font-weight='bold' font-size='50' fill='%23ffffff'%3ED%3C/text%3E%3C/svg%3E" type="image/svg+xml">
+
+    <!-- Google Fonts: Rajdhani (Tech/Anime) & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Rajdhani:wght@500;600;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- Configuración Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                        tech: ['Rajdhani', 'sans-serif'],
+                    },
+                    colors: {
+                        mono: {
+                            50: '#f9fafb', 100: '#f3f4f6', 200: '#e5e7eb', 300: '#d1d5db',
+                            400: '#9ca3af', 500: '#6b7280', 600: '#4b5563', 700: '#374151',
+                            800: '#1f2937', 900: '#111827', 950: '#030712',
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body { 
+            background-color: #050505; 
+            color: #e5e5e5; 
+            margin: 0; 
+            overflow-x: hidden; 
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #333; }
+        
+        .tech-panel {
+            background: rgba(10, 10, 10, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .tech-panel::after {
+            content: ''; position: absolute; bottom: 0; right: 0; width: 20px; height: 20px;
+            border-left: 1px solid rgba(255,255,255,0.2);
+            background: linear-gradient(to top left, rgba(255,255,255,0.1) 50%, transparent 50%);
+            pointer-events: none;
+        }
+        .tech-panel:hover {
+            background: rgba(25, 25, 25, 0.9);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.08);
+        }
+        .clip-path-navbar {
+            clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- ICONOS ---
+        const Icon = ({ path, size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square" strokeLinejoin="miter" className={className}>
+                <path d={path} />
+            </svg>
+        );
+
+        const Icons = {
+            Github: (p) => <Icon {...p} path="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />,
+            Mail: (p) => <Icon {...p} path="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M22 6l-10 7L2 6" />,
+            Database: (p) => <Icon {...p} path="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5 M21 5c0 1.66-4 3-9 3s-9-1.34-9-3 M3 12c0 1.66 4 3 9 3s9-1.34 9-3" />,
+            Cpu: (p) => <Icon {...p} path="M4 4h16v16H4zM9 9h6v6H9zM15 2v2M9 2v2M15 20v2M9 20v2M20 15h2M20 9h2M2 15h2M2 9h2" />,
+            Zap: (p) => <Icon {...p} path="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />,
+            BookOpen: (p) => <Icon {...p} path="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />,
+            GraduationCap: (p) => <Icon {...p} path="M22 10v6M2 10l10-5 10 5-10 5z M6 12v5c3 3 9 3 12 0v-5" />,
+            Calculator: (p) => <Icon {...p} path="M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM6 6h12M6 10h12M6 14h12M6 18h12" />,
+            Briefcase: (p) => <Icon {...p} path="M20 7h-3a2 2 0 0 0-2-2h-6a2 2 0 0 0-2 2H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />,
+            CheckCircle2: (p) => <Icon {...p} path="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zM9 12l2 2 4-4" />,
+            Mic: (p) => <Icon {...p} path="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8" />,
+            Cross: (p) => <Icon {...p} path="M12 2v20M2 10h20" />,
+            School: (p) => <Icon {...p} path="M14 22v-4a2 2 0 1 0-4 0v4 M2 22v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5 M2 12h20 M4 12v-3a5 5 0 0 1 10 0v3 M12 7L2 12h20L12 7z" />,
+            Gamepad2: (p) => <Icon {...p} path="M6 11h4M8 9v4M15 12a1 1 0 1 0 0-2 1 1 0 0 0 0 2zM18 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2zM2 12c0 5.5 4.5 10 10 10s10-4.5 10-10S17.5 2 12 2 2 6.5 2 12z" />,
+            Lock: (p) => <Icon {...p} path="M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2zm-2.5 0V7a4.5 4.5 0 1 0-9 0v4" />,
+            BrainCircuit: (p) => <Icon {...p} path="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z" />,
+            Bot: (p) => <Icon {...p} path="M12 8V4H8 M16 4h-4v4 M4 14a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4z M9 16a1 1 0 1 0 0-2 1 1 0 0 0 0 2z M15 16a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" />
+        };
+
+        // --- DATOS ---
+        // Actualizado para reflejar un sistema corporativo en lugar de personal
+        const CODE_SNIPPET = `
+// SYSTEM INITIATED...
+// SYSTEM: DIDAC-CLICK MAIN
+// MODE: EdTech Solutions
+
+class DidacSystem extends Core {
+  constructor() {
+    super();
+    this.status = 'Online';
+    this.mission = 'Innovate';
+  }
+
+  deployService(client) {
+    // Engaging AI-Modules...
+    return new Solution({
+      client: client,
+      impact: 'High'
+    });
+  }
+}`;
+
+        // Reemplazado "Educación" (Personal) por "Servicios/Módulos" (Empresa)
+        const SERVICES = [
+          { id: 1, title: "Desarrollo Web", place: "Plataformas", loc: "Escalable", icon: <Icons.Cpu size={24}/>, active: true },
+          { id: 2, title: "Consultoría IA", place: "Optimización", loc: "Inteligente", icon: <Icons.BrainCircuit size={24}/> },
+          { id: 3, title: "Gamificación", place: "Engagement", loc: "Interactivo", icon: <Icons.Gamepad2 size={24}/> },
+          { id: 4, title: "Soporte Cloud", place: "Infraestructura", loc: "24/7", icon: <Icons.Zap size={24}/> }
+        ];
+
+        const PROJECTS = [
+          {
+            id: 'gestion',
+            title: 'Sistema Gestión Académico',
+            type: 'Plataforma Admin',
+            desc: 'Suite integral para centros educativos. Control total de datos, privacidad y reportes automatizados.',
+            tags: ['Privacidad', 'Full-Stack'],
+            icon: <Icons.Lock size={24} className="text-white" />
+          },
+          {
+            id: 'bpd',
+            title: 'Banco Pincel Dorado',
+            type: 'Fintech Edu',
+            desc: 'Simulador financiero escolar. Billeteras digitales, cálculo de intereses y economía tokenizada.',
+            tags: ['Finanzas', 'Lógica'],
+            icon: <Icons.Database size={24} className="text-gray-300" />
+          },
+          {
+            id: 'inc_alpha',
+            title: 'Proyecto [Incubación_A]',
+            type: 'En Producción',
+            desc: 'Iniciativa actualmente en fase de formación y desarrollo activo. Los detalles operativos y características se revelarán próximamente.',
+            tags: ['System', 'Loading...'],
+            icon: <Icons.BrainCircuit size={24} className="text-gray-500" />,
+            wip: true
+          },
+          {
+            id: 'inc_beta',
+            title: 'Proyecto [Incubación_B]',
+            type: 'En Producción',
+            desc: 'Arquitectura de software en construcción. Este sistema se encuentra en proceso de producción actual. Espera detalles pronto.',
+            tags: ['Dev', 'Building'],
+            icon: <Icons.Cpu size={24} className="text-gray-500" />,
+            wip: true
+          },
+          {
+            id: 'inc_gamma',
+            title: 'Proyecto [Incubación_C]',
+            type: 'En Producción',
+            desc: 'Desarrollo confidencial en curso. Estamos trabajando en la lógica central de este proyecto. Más información técnica en breve.',
+            tags: ['Logic', 'Coming Soon'],
+            icon: <Icons.Zap size={24} className="text-gray-500" />,
+            wip: true
+          },
+          {
+            id: 'inc_delta',
+            title: 'Proyecto [Incubación_D]',
+            type: 'R&D',
+            desc: 'Investigación avanzada en proceso. Fase de diseño y producción activa. Pronto se desclasificarán los detalles del proyecto.',
+            tags: ['AI', 'Future'],
+            icon: <Icons.Bot size={24} className="text-gray-500" />,
+            wip: true
+          }
+        ];
+
+        const STACK = [
+          { name: 'Prompting', icon: <Icons.Bot size={18} /> },
+          { name: 'Arquitectura', icon: <Icons.Cpu size={18} /> },
+          { name: 'Data', icon: <Icons.Database size={18} /> },
+          { name: 'Lógica', icon: <Icons.BrainCircuit size={18} /> },
+          { name: 'Pedagogía', icon: <Icons.Zap size={18} /> },
+          { name: 'Git', icon: <Icons.Github size={18} /> }
+        ];
+
+        // --- FONDO ANIME TECH (Warp Speed Monocromo + Cursor Corregido) ---
+        const TechBackground = ({ show }) => {
+          const containerRef = useRef(null);
+
+          useEffect(() => {
+            // Protección contra la falta de Three.js
+            if (typeof THREE === 'undefined') {
+                console.error("Error: THREE.js no está cargado. El fondo animado no se inicializará.");
+                return;
+            }
+
+            if (!containerRef.current) return;
+            containerRef.current.innerHTML = '';
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 100;
+
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            containerRef.current.appendChild(renderer.domElement);
+
+            // Variables para el mouse
+            let mouseX = 0;
+            let mouseY = 0;
+
+            const geometry = new THREE.BufferGeometry();
+            const count = 2000;
+            const positions = new Float32Array(count * 3);
+            const velocities = new Float32Array(count);
+
+            for(let i = 0; i < count; i++) {
+                positions[i*3] = (Math.random() - 0.5) * 400;
+                positions[i*3+1] = (Math.random() - 0.5) * 400;
+                positions[i*3+2] = (Math.random() - 0.5) * 400;
+                velocities[i] = Math.random() * 0.5 + 0.1;
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            
+            const material = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 0.8,
+                transparent: true,
+                opacity: 0.8,
+                sizeAttenuation: true
+            });
+
+            const starField = new THREE.Points(geometry, material);
+            scene.add(starField);
+
+            const linesGeo = new THREE.BufferGeometry();
+            const linePos = [];
+            for(let i=0; i<100; i++){
+                let x = (Math.random() - 0.5) * 300;
+                let y = (Math.random() - 0.5) * 300;
+                let z = Math.random() * 200;
+                linePos.push(x, y, z);
+                linePos.push(x, y, z + 40);
+            }
+            linesGeo.setAttribute('position', new THREE.Float32BufferAttribute(linePos, 3));
+            const linesMat = new THREE.LineBasicMaterial({ color: 0xaaaaaa, transparent: true, opacity: 0.15 });
+            const speedLines = new THREE.LineSegments(linesGeo, linesMat);
+            scene.add(speedLines);
+
+            const handleMouseMove = (event) => {
+                mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+                mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+            };
+            window.addEventListener('mousemove', handleMouseMove);
+
+            let animationId;
+            const animate = () => {
+                animationId = requestAnimationFrame(animate);
+                
+                const posAttribute = geometry.attributes.position;
+                for(let i=0; i<count; i++) {
+                    let z = posAttribute.getZ(i);
+                    z += velocities[i] * 2;
+                    if(z > 150) z = -200;
+                    posAttribute.setZ(i, z);
+                }
+                posAttribute.needsUpdate = true;
+                
+                speedLines.position.z += 0.5;
+                if(speedLines.position.z > 50) speedLines.position.z = -50;
+
+                const targetX = -mouseY * 0.2; 
+                const targetY = mouseX * 0.2; 
+                
+                scene.rotation.x += (targetX - scene.rotation.x) * 0.05;
+                scene.rotation.y += (targetY - scene.rotation.y) * 0.05;
+
+                renderer.render(scene, camera);
+            };
+            animate();
+
+            const onResize = () => {
+                 camera.aspect = window.innerWidth / window.innerHeight;
+                 camera.updateProjectionMatrix();
+                 renderer.setSize(window.innerWidth, window.innerHeight);
+            };
+            window.addEventListener('resize', onResize);
+
+            return () => {
+                window.removeEventListener('mousemove', handleMouseMove);
+                window.removeEventListener('resize', onResize);
+                cancelAnimationFrame(animationId);
+                if(renderer.domElement && containerRef.current) {
+                    containerRef.current.removeChild(renderer.domElement);
+                }
+            };
+          }, []);
+
+          return <div ref={containerRef} className={`fixed inset-0 z-0 pointer-events-none transition-opacity duration-1000 ${show ? 'opacity-100' : 'opacity-0'}`} />;
+        };
+
+        // --- Editor Código Anime Style ---
+        const CodeBlock = () => {
+          const [code, setCode] = useState('');
+          const index = useRef(0);
+
+          useEffect(() => {
+            const type = () => {
+              if (index.current < CODE_SNIPPET.length) {
+                setCode(prev => prev + CODE_SNIPPET.charAt(index.current));
+                index.current++;
+                // Velocidad de tipeo
+                setTimeout(type, 25);
+              } else {
+                // Reiniciar el bucle de tipeo después de 8 segundos
+                setTimeout(() => { setCode(''); index.current = 0; type(); }, 8000);
+              }
+            };
+            type();
+          }, []);
+
+          const highlight = (c) => c
+            .replace(/\b(class|constructor|super|this|return|const|new)\b/g, '<span class="text-white font-bold">$1</span>')
+            .replace(/\b(DidacSystem|Solution|Core)\b/g, '<span class="text-gray-400 font-bold">$1</span>')
+            .replace(/'([^']*)'/g, '<span class="text-gray-500 italic">\'$1\'</span>')
+            .replace(/(\/\/.*)/g, '<span class="text-gray-600">$1</span>');
+
+          return (
+            <div className="tech-panel h-full flex flex-col group relative">
+              <div className="bg-black/60 px-4 py-2 flex items-center justify-between border-b border-white/10">
+                <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 bg-white animate-pulse"></div>
+                    <span className="text-[10px] text-gray-400 font-tech tracking-widest uppercase">Terminal_01</span>
+                </div>
+                <span className="text-[10px] text-gray-600 font-mono">DC_CORE_SYS</span>
+              </div>
+              <div className="p-5 font-mono text-[11px] leading-relaxed text-gray-300 overflow-hidden flex-grow relative">
+                <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-white/5"></div>
+                <pre style={{ whiteSpace: 'pre-wrap' }} dangerouslySetInnerHTML={{ __html: highlight(code) + '<span class="animate-pulse inline-block w-2 h-4 bg-white ml-1 align-middle"></span>' }} />
+              </div>
+            </div>
+          );
+        };
+
+        // --- Carrusel de Servicios (Antes Educación) ---
+        const ServicesCarousel = () => {
+            const [currentIndex, setCurrentIndex] = useState(0);
+
+            useEffect(() => {
+                const timer = setInterval(() => {
+                    setCurrentIndex((prev) => (prev + 1) % SERVICES.length);
+                }, 3000);
+                return () => clearInterval(timer);
+            }, []);
+
+            const srv = SERVICES[currentIndex];
+
+            return (
+                <div className="relative tech-panel p-8 flex flex-col items-center justify-center text-center h-full min-h-[260px] overflow-hidden">
+                    <div className="absolute top-4 right-4 text-[9px] text-gray-700 font-tech tracking-widest">MODULE_0{currentIndex + 1}</div>
+                    <div className="absolute bottom-4 left-4 text-[9px] text-gray-700 font-tech tracking-widest">RUNNING...</div>
+
+                    <div key={srv.id} className="animate-fade-in w-full flex flex-col items-center">
+                        <div className="mb-4 p-4 bg-black border border-white/20 relative group">
+                            <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white/50"></div>
+                            <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-white/50"></div>
+                            <div className={`text-white transition-transform duration-500`}>
+                                {srv.icon}
+                            </div>
+                        </div>
+                        <h3 className="text-2xl font-tech font-bold text-white mb-1 uppercase tracking-wide">{srv.title}</h3>
+                        <p className="text-gray-400 font-medium text-sm font-mono">{srv.place}</p>
+                        <p className="text-gray-600 text-xs uppercase tracking-widest mt-2">[{srv.loc}]</p>
+                        {srv.active && (
+                            <div className="mt-4 px-3 py-0.5 bg-white/10 text-white text-[9px] font-tech font-bold uppercase tracking-widest border border-white/20 animate-pulse">
+                                ● System Ready
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // --- Navbar Minimalista ---
+        const Navbar = () => (
+          <nav className="fixed top-0 w-full z-50 bg-gradient-to-b from-black via-black/80 to-transparent pt-6 pb-10 px-6 flex justify-center pointer-events-none">
+            <div className="pointer-events-auto bg-black/80 backdrop-blur-md border border-white/10 px-8 py-3 flex items-center gap-8 clip-path-navbar relative">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-[1px] bg-white/20"></div>
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-[1px] bg-white/20"></div>
+              
+              <span className="text-lg font-tech font-bold text-white tracking-widest">DC<span className="text-gray-500">.SYS</span></span>
+              
+              <div className="h-4 w-[1px] bg-white/20 mx-2"></div>
+              
+              <div className="flex gap-6">
+                <a href="#" className="text-gray-500 hover:text-white transition-colors transform hover:scale-110"><Icons.Github size={18}/></a>
+                <a href="#" className="text-gray-500 hover:text-white transition-colors transform hover:scale-110"><Icons.Mail size={18}/></a>
+              </div>
+            </div>
+          </nav>
+        );
+
+        // --- SECCIONES ---
+
+        const Hero = () => (
+          <section className="min-h-[90vh] flex items-center justify-center pt-20 px-6 relative">
+            <div className="max-w-6xl w-full grid lg:grid-cols-12 gap-12 items-center relative z-10">
+              
+              <div className="lg:col-span-7 space-y-8 text-center lg:text-left">
+                <div className="inline-flex items-center gap-3 px-4 py-1 border-l-2 border-white bg-white/5 text-white text-[10px] font-tech font-bold tracking-[0.3em] uppercase">
+                  System Online
+                </div>
+                
+                <div>
+                  <h1 className="text-5xl md:text-8xl font-bold text-white tracking-tighter leading-[0.85] mb-6 font-tech">
+                    DIDAC-CLICK<br/>
+                    <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-600 text-stroke">GROUP</span>
+                  </h1>
+                  <p className="text-xl text-gray-400 font-light font-mono border-l border-white/20 pl-4">
+                    Innovación Educativa <span className="text-gray-600">//</span> Desarrollo Tecnológico
+                  </p>
+                </div>
+
+                <div className="flex flex-col lg:flex-row gap-8 items-center lg:items-start">
+                  <p className="text-gray-400 text-base max-w-md leading-relaxed">
+                    Somos <strong className="text-white">Didac-Click</strong>. Una entidad dedicada a orquestar Inteligencia Artificial para reescribir el código de la educación moderna.
+                  </p>
+                  
+                  {/* Stack de iconos */}
+                  <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
+                     {STACK.map((s,i) => (
+                       <div key={i} className="w-10 h-10 flex items-center justify-center bg-white/5 border border-white/20 rounded hover:bg-white hover:text-black transition-all duration-300 cursor-crosshair" title={s.name}>
+                         {s.icon}
+                       </div>
+                     ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="lg:col-span-5 h-80 relative w-full">
+                 <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-transparent transform skew-x-12 -z-10 border border-white/5"></div>
+                 <CodeBlock />
+              </div>
+            </div>
+          </section>
+        );
+
+        const ProfileSection = () => (
+          <section className="py-20 px-6 relative z-10">
+            <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-6">
+              <div className="tech-panel p-10 flex flex-col justify-between h-full min-h-[280px] group">
+                <div className="absolute right-0 top-0 w-40 h-40 border-b border-l border-white/5 rounded-bl-full opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                <div>
+                  <div className="flex items-center gap-4 mb-6">
+                     <div className="p-3 bg-white text-black clip-path-icon"><Icons.Briefcase size={28} /></div>
+                     <div>
+                         <h2 className="text-3xl font-tech font-bold text-white uppercase">Sobre Nosotros</h2>
+                         <span className="text-[10px] text-gray-500 font-mono tracking-widest">CORPORATE ENTITY</span>
+                     </div>
+                  </div>
+                  <p className="text-gray-400 text-sm leading-relaxed font-mono">
+                    &gt; Init Sequence: Human_Pedagogy + AI_Power<br/>
+                    <br/>
+                    No desarrollamos software convencional; <strong className="text-white">creamos ecosistemas</strong> donde la tecnología y la pedagogía convergen para potenciar el aprendizaje.
+                  </p>
+                </div>
+                <div className="mt-8 flex gap-3">
+                   <div className="px-4 py-1 bg-white/5 border border-white/20 text-[10px] text-white font-tech uppercase tracking-wider flex items-center gap-2">
+                     <Icons.Bot size={12}/> AI Powered
+                   </div>
+                   <div className="px-4 py-1 bg-white/5 border border-white/20 text-[10px] text-white font-tech uppercase tracking-wider flex items-center gap-2">
+                     <Icons.CheckCircle2 size={12}/> EdTech
+                   </div>
+                </div>
+              </div>
+              <ServicesCarousel />
+            </div>
+          </section>
+        );
+
+        const ProjectsGrid = () => (
+          <section className="py-20 px-6 relative z-10">
+            <div className="max-w-6xl mx-auto">
+              <div className="flex items-end justify-between mb-12 border-b border-white/10 pb-4">
+                <div>
+                  <h2 className="text-4xl font-tech font-bold text-white uppercase tracking-tighter">Proyectos</h2>
+                  <p className="text-gray-500 text-xs font-mono mt-2">[ PROJECTS_LOADED: 100% ]</p>
+                </div>
+                <div className="hidden md:block text-right">
+                  <div className="text-3xl font-bold text-white font-tech">06</div>
+                  <div className="text-[9px] text-gray-600 uppercase tracking-[0.2em]">Unit Count</div>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {PROJECTS.map((project) => (
+                  <div key={project.id} className={`tech-panel p-6 flex flex-col h-full group ${project.wip ? 'opacity-75' : ''}`}>
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="text-white opacity-80 group-hover:opacity-100 transition-opacity">
+                        {project.icon}
+                      </div>
+                      {project.wip && <span className="text-[9px] font-bold bg-white/10 text-white px-2 py-1 border border-white/20 animate-pulse">IN PROGRESS</span>}
+                    </div>
+                    <h3 className="text-xl font-tech font-bold text-white mb-2 group-hover:text-gray-300 transition-colors uppercase">{project.title}</h3>
+                    <p className="text-[10px] text-gray-500 font-mono mb-4 uppercase tracking-widest border-l-2 border-white/20 pl-2">{project.type}</p>
+                    <p className="text-gray-400 text-xs leading-relaxed flex-grow font-mono">{project.desc}</p>
+                    <div className="mt-6 flex flex-wrap gap-1.5 pt-4 border-t border-white/5">
+                      {project.tags.map(tag => (
+                        <span key={tag} className="px-2 py-1 bg-black text-[9px] text-gray-400 border border-white/10 font-tech uppercase tracking-wider">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+
+        const Footer = () => (
+          <footer className="py-10 border-t border-white/10 bg-black relative z-10">
+            <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-[10px] text-gray-600 font-mono uppercase tracking-widest">
+              <p>© 2025 Didac-Click // All systems nominal.</p>
+              <p>Built with React + Three.js + AI</p>
+            </div>
+          </footer>
+        );
+
+        const App = () => {
+          return (
+            <div className="min-h-screen font-sans text-gray-200 selection:bg-white selection:text-black overflow-hidden">
+              <TechBackground show={true} />
+              <div className="fixed inset-0 pointer-events-none opacity-[0.03] z-[1]" style={{backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`}}></div>
+              <div className="animate-fade-in relative z-[2]">
+                  <Navbar />
+                  <main className="pb-20">
+                    <Hero />
+                    <ProfileSection />
+                    <ProjectsGrid />
+                  </main>
+                  <Footer />
+              </div>
+            </div>
+          );
+        };
+
+        // Bloque de renderizado con manejo de errores para diagnosticar fallos de inicialización
+        try {
+            const root = ReactDOM.createRoot(document.getElementById('root'));
+            root.render(<App />);
+        } catch (error) {
+            console.error("Error crítico al renderizar la aplicación:", error);
+            document.getElementById('root').innerHTML = `
+                <div class="p-8 bg-red-900 text-white font-mono min-h-screen flex flex-col justify-center items-center">
+                    <h1 class="text-2xl font-bold mb-4">ERROR DE INICIALIZACIÓN DEL SISTEMA</h1>
+                    <p>La aplicación React falló al iniciarse. Esto podría deberse a que una librería no se cargó correctamente (ej. Three.js).</p>
+                    <p class="mt-4">Revise la consola del navegador para ver el error detallado.</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
