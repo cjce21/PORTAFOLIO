@@ -92,6 +92,12 @@
         .clip-path-navbar {
             clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
         }
+        .clip-path-icon {
+            clip-path: polygon(0% 0%, 100% 0%, 100% 75%, 75% 100%, 0% 100%);
+        }
+        .text-stroke {
+            -webkit-text-stroke: 1px rgba(255,255,255,0.3);
+        }
     </style>
 </head>
 <body>
@@ -113,22 +119,16 @@
             Database: (p) => <Icon {...p} path="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5 M21 5c0 1.66-4 3-9 3s-9-1.34-9-3 M3 12c0 1.66 4 3 9 3s9-1.34 9-3" />,
             Cpu: (p) => <Icon {...p} path="M4 4h16v16H4zM9 9h6v6H9zM15 2v2M9 2v2M15 20v2M9 20v2M20 15h2M20 9h2M2 15h2M2 9h2" />,
             Zap: (p) => <Icon {...p} path="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />,
+            Calendar: (p) => <Icon {...p} path="M3 4h18v16H3zM3 10h18M8 2v4M16 2v4M7 14h2M11 14h2M15 14h2" />,
             BookOpen: (p) => <Icon {...p} path="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />,
             GraduationCap: (p) => <Icon {...p} path="M22 10v6M2 10l10-5 10 5-10 5z M6 12v5c3 3 9 3 12 0v-5" />,
             Calculator: (p) => <Icon {...p} path="M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM6 6h12M6 10h12M6 14h12M6 18h12" />,
             Briefcase: (p) => <Icon {...p} path="M20 7h-3a2 2 0 0 0-2-2h-6a2 2 0 0 0-2 2H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />,
             CheckCircle2: (p) => <Icon {...p} path="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zM9 12l2 2 4-4" />,
-            Mic: (p) => <Icon {...p} path="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8" />,
-            Cross: (p) => <Icon {...p} path="M12 2v20M2 10h20" />,
-            School: (p) => <Icon {...p} path="M14 22v-4a2 2 0 1 0-4 0v4 M2 22v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5 M2 12h20 M4 12v-3a5 5 0 0 1 10 0v3 M12 7L2 12h20L12 7z" />,
-            Gamepad2: (p) => <Icon {...p} path="M6 11h4M8 9v4M15 12a1 1 0 1 0 0-2 1 1 0 0 0 0 2zM18 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2zM2 12c0 5.5 4.5 10 10 10s10-4.5 10-10S17.5 2 12 2 2 6.5 2 12z" />,
-            Lock: (p) => <Icon {...p} path="M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2zm-2.5 0V7a4.5 4.5 0 1 0-9 0v4" />,
-            BrainCircuit: (p) => <Icon {...p} path="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z" />,
             Bot: (p) => <Icon {...p} path="M12 8V4H8 M16 4h-4v4 M4 14a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4z M9 16a1 1 0 1 0 0-2 1 1 0 0 0 0 2z M15 16a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" />
         };
 
         // --- DATOS ---
-        // Actualizado para reflejar un sistema corporativo en lugar de personal
         const CODE_SNIPPET = `
 // SYSTEM INITIATED...
 // SYSTEM: DIDAC-CLICK MAIN
@@ -150,64 +150,62 @@ class DidacSystem extends Core {
   }
 }`;
 
-        // Reemplazado "Educación" (Personal) por "Servicios/Módulos" (Empresa)
         const SERVICES = [
           { id: 1, title: "Desarrollo Web", place: "Plataformas", loc: "Escalable", icon: <Icons.Cpu size={24}/>, active: true },
-          { id: 2, title: "Consultoría IA", place: "Optimización", loc: "Inteligente", icon: <Icons.BrainCircuit size={24}/> },
-          { id: 3, title: "Gamificación", place: "Engagement", loc: "Interactivo", icon: <Icons.Gamepad2 size={24}/> },
+          { id: 2, title: "Consultoría IA", place: "Optimización", loc: "Inteligente", icon: <Icons.Bot size={24}/> },
+          { id: 3, title: "Gestión Escolar", place: "Ecosistemas", loc: "Integral", icon: <Icons.GraduationCap size={24}/> },
           { id: 4, title: "Soporte Cloud", place: "Infraestructura", loc: "24/7", icon: <Icons.Zap size={24}/> }
         ];
 
         const PROJECTS = [
           {
-            id: 'gestion',
-            title: 'Sistema Gestión Académico',
-            type: 'Plataforma Admin',
-            desc: 'Suite integral para centros educativos. Control total de datos, privacidad y reportes automatizados.',
-            tags: ['Privacidad', 'Full-Stack'],
-            icon: <Icons.Lock size={24} className="text-white" />
+            id: 'calificaciones',
+            title: 'Sistema de Calificaciones',
+            type: 'Plataforma de Registro',
+            desc: 'Herramienta especializada para la colocación dinámica de notas académicas. Centraliza evaluaciones y genera boletines optimizados para centros educativos.',
+            tags: ['Registro', 'Full-Stack'],
+            icon: <Icons.CheckCircle2 size={24} className="text-white" />
+          },
+          {
+            id: 'agenda',
+            title: 'Agenda Escolar Pinceladas',
+            type: 'Gestión de Eventos',
+            desc: 'Organizador interactivo diseñado para el ciclo académico. Permite la gestión de actividades institucionales, académicas y festivas con sistema de notas integrado.',
+            tags: ['Agenda', 'Logística'],
+            icon: <Icons.Calendar size={24} className="text-gray-300" />
+          },
+          {
+            id: 'horarios',
+            title: 'Gestor de Horarios',
+            type: 'En Desarrollo',
+            desc: 'Sistema inteligente para la creación y distribución de horarios escolares. Optimización automática de recursos docentes, aulas y espacios físicos.',
+            tags: ['Algoritmos', 'Dev'],
+            icon: <Icons.Calculator size={24} className="text-gray-400" />,
+            wip: true
           },
           {
             id: 'bpd',
             title: 'Banco Pincel Dorado',
             type: 'Fintech Edu',
-            desc: 'Simulador financiero escolar. Billeteras digitales, cálculo de intereses y economía tokenizada.',
+            desc: 'Simulador financiero escolar. Billeteras digitales, cálculo de intereses y economía tokenizada para fomentar la educación financiera temprana.',
             tags: ['Finanzas', 'Lógica'],
             icon: <Icons.Database size={24} className="text-gray-300" />
           },
           {
-            id: 'inc_alpha',
-            title: 'Proyecto [Incubación_A]',
-            type: 'En Producción',
-            desc: 'Iniciativa actualmente en fase de formación y desarrollo activo. Los detalles operativos y características se revelarán próximamente.',
-            tags: ['System', 'Loading...'],
-            icon: <Icons.BrainCircuit size={24} className="text-gray-500" />,
-            wip: true
+              id: 'inc_alpha',
+              title: 'Proyecto [Incubación_Alpha]',
+              type: 'R&D',
+              desc: 'Arquitectura de software confidencial en fase de formación. Enfocada en la integración de nuevas tecnologías pedagógicas.',
+              tags: ['Research', 'Coming Soon'],
+              icon: <Icons.Cpu size={24} className="text-gray-500" />,
+              wip: true
           },
           {
             id: 'inc_beta',
-            title: 'Proyecto [Incubación_B]',
-            type: 'En Producción',
-            desc: 'Arquitectura de software en construcción. Este sistema se encuentra en proceso de producción actual. Espera detalles pronto.',
-            tags: ['Dev', 'Building'],
-            icon: <Icons.Cpu size={24} className="text-gray-500" />,
-            wip: true
-          },
-          {
-            id: 'inc_gamma',
-            title: 'Proyecto [Incubación_C]',
-            type: 'En Producción',
-            desc: 'Desarrollo confidencial en curso. Estamos trabajando en la lógica central de este proyecto. Más información técnica en breve.',
-            tags: ['Logic', 'Coming Soon'],
-            icon: <Icons.Zap size={24} className="text-gray-500" />,
-            wip: true
-          },
-          {
-            id: 'inc_delta',
-            title: 'Proyecto [Incubación_D]',
-            type: 'R&D',
-            desc: 'Investigación avanzada en proceso. Fase de diseño y producción activa. Pronto se desclasificarán los detalles del proyecto.',
-            tags: ['AI', 'Future'],
+            title: 'Proyecto [Incubación_Beta]',
+            type: 'Lab',
+            desc: 'Desarrollo de prototipos para automatización de procesos administrativos escolares mediante inteligencia artificial.',
+            tags: ['AI', 'Lab'],
             icon: <Icons.Bot size={24} className="text-gray-500" />,
             wip: true
           }
@@ -217,23 +215,17 @@ class DidacSystem extends Core {
           { name: 'Prompting', icon: <Icons.Bot size={18} /> },
           { name: 'Arquitectura', icon: <Icons.Cpu size={18} /> },
           { name: 'Data', icon: <Icons.Database size={18} /> },
-          { name: 'Lógica', icon: <Icons.BrainCircuit size={18} /> },
-          { name: 'Pedagogía', icon: <Icons.Zap size={18} /> },
+          { name: 'Lógica', icon: <Icons.Calculator size={18} /> },
+          { name: 'Calendario', icon: <Icons.Calendar size={18} /> },
           { name: 'Git', icon: <Icons.Github size={18} /> }
         ];
 
-        // --- FONDO ANIME TECH (Warp Speed Monocromo + Cursor Corregido) ---
+        // --- FONDO ANIME TECH ---
         const TechBackground = ({ show }) => {
           const containerRef = useRef(null);
 
           useEffect(() => {
-            // Protección contra la falta de Three.js
-            if (typeof THREE === 'undefined') {
-                console.error("Error: THREE.js no está cargado. El fondo animado no se inicializará.");
-                return;
-            }
-
-            if (!containerRef.current) return;
+            if (typeof THREE === 'undefined' || !containerRef.current) return;
             containerRef.current.innerHTML = '';
 
             const scene = new THREE.Scene();
@@ -245,7 +237,6 @@ class DidacSystem extends Core {
             renderer.setPixelRatio(window.devicePixelRatio);
             containerRef.current.appendChild(renderer.domElement);
 
-            // Variables para el mouse
             let mouseX = 0;
             let mouseY = 0;
 
@@ -267,7 +258,7 @@ class DidacSystem extends Core {
                 color: 0xffffff,
                 size: 0.8,
                 transparent: true,
-                opacity: 0.8,
+                opacity: 0.6,
                 sizeAttenuation: true
             });
 
@@ -276,7 +267,7 @@ class DidacSystem extends Core {
 
             const linesGeo = new THREE.BufferGeometry();
             const linePos = [];
-            for(let i=0; i<100; i++){
+            for(let i=0; i<80; i++){
                 let x = (Math.random() - 0.5) * 300;
                 let y = (Math.random() - 0.5) * 300;
                 let z = Math.random() * 200;
@@ -284,7 +275,7 @@ class DidacSystem extends Core {
                 linePos.push(x, y, z + 40);
             }
             linesGeo.setAttribute('position', new THREE.Float32BufferAttribute(linePos, 3));
-            const linesMat = new THREE.LineBasicMaterial({ color: 0xaaaaaa, transparent: true, opacity: 0.15 });
+            const linesMat = new THREE.LineBasicMaterial({ color: 0xaaaaaa, transparent: true, opacity: 0.1 });
             const speedLines = new THREE.LineSegments(linesGeo, linesMat);
             scene.add(speedLines);
 
@@ -301,17 +292,17 @@ class DidacSystem extends Core {
                 const posAttribute = geometry.attributes.position;
                 for(let i=0; i<count; i++) {
                     let z = posAttribute.getZ(i);
-                    z += velocities[i] * 2;
+                    z += velocities[i] * 1.5;
                     if(z > 150) z = -200;
                     posAttribute.setZ(i, z);
                 }
                 posAttribute.needsUpdate = true;
                 
-                speedLines.position.z += 0.5;
+                speedLines.position.z += 0.4;
                 if(speedLines.position.z > 50) speedLines.position.z = -50;
 
-                const targetX = -mouseY * 0.2; 
-                const targetY = mouseX * 0.2; 
+                const targetX = -mouseY * 0.1; 
+                const targetY = mouseX * 0.1; 
                 
                 scene.rotation.x += (targetX - scene.rotation.x) * 0.05;
                 scene.rotation.y += (targetY - scene.rotation.y) * 0.05;
@@ -340,7 +331,6 @@ class DidacSystem extends Core {
           return <div ref={containerRef} className={`fixed inset-0 z-0 pointer-events-none transition-opacity duration-1000 ${show ? 'opacity-100' : 'opacity-0'}`} />;
         };
 
-        // --- Editor Código Anime Style ---
         const CodeBlock = () => {
           const [code, setCode] = useState('');
           const index = useRef(0);
@@ -350,11 +340,9 @@ class DidacSystem extends Core {
               if (index.current < CODE_SNIPPET.length) {
                 setCode(prev => prev + CODE_SNIPPET.charAt(index.current));
                 index.current++;
-                // Velocidad de tipeo
-                setTimeout(type, 25);
+                setTimeout(type, 30);
               } else {
-                // Reiniciar el bucle de tipeo después de 8 segundos
-                setTimeout(() => { setCode(''); index.current = 0; type(); }, 8000);
+                setTimeout(() => { setCode(''); index.current = 0; type(); }, 10000);
               }
             };
             type();
@@ -375,7 +363,7 @@ class DidacSystem extends Core {
                 </div>
                 <span className="text-[10px] text-gray-600 font-mono">DC_CORE_SYS</span>
               </div>
-              <div className="p-5 font-mono text-[11px] leading-relaxed text-gray-300 overflow-hidden flex-grow relative">
+              <div className="p-5 font-mono text-[11px] leading-relaxed text-gray-300 overflow-hidden flex-grow relative bg-black/40">
                 <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-white/5"></div>
                 <pre style={{ whiteSpace: 'pre-wrap' }} dangerouslySetInnerHTML={{ __html: highlight(code) + '<span class="animate-pulse inline-block w-2 h-4 bg-white ml-1 align-middle"></span>' }} />
               </div>
@@ -383,14 +371,13 @@ class DidacSystem extends Core {
           );
         };
 
-        // --- Carrusel de Servicios (Antes Educación) ---
         const ServicesCarousel = () => {
             const [currentIndex, setCurrentIndex] = useState(0);
 
             useEffect(() => {
                 const timer = setInterval(() => {
                     setCurrentIndex((prev) => (prev + 1) % SERVICES.length);
-                }, 3000);
+                }, 4000);
                 return () => clearInterval(timer);
             }, []);
 
@@ -399,13 +386,13 @@ class DidacSystem extends Core {
             return (
                 <div className="relative tech-panel p-8 flex flex-col items-center justify-center text-center h-full min-h-[260px] overflow-hidden">
                     <div className="absolute top-4 right-4 text-[9px] text-gray-700 font-tech tracking-widest">MODULE_0{currentIndex + 1}</div>
-                    <div className="absolute bottom-4 left-4 text-[9px] text-gray-700 font-tech tracking-widest">RUNNING...</div>
+                    <div className="absolute bottom-4 left-4 text-[9px] text-gray-700 font-tech tracking-widest">STATUS: RUNNING</div>
 
                     <div key={srv.id} className="animate-fade-in w-full flex flex-col items-center">
                         <div className="mb-4 p-4 bg-black border border-white/20 relative group">
                             <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white/50"></div>
                             <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-white/50"></div>
-                            <div className={`text-white transition-transform duration-500`}>
+                            <div className={`text-white`}>
                                 {srv.icon}
                             </div>
                         </div>
@@ -422,7 +409,6 @@ class DidacSystem extends Core {
             );
         };
 
-        // --- Navbar Minimalista ---
         const Navbar = () => (
           <nav className="fixed top-0 w-full z-50 bg-gradient-to-b from-black via-black/80 to-transparent pt-6 pb-10 px-6 flex justify-center pointer-events-none">
             <div className="pointer-events-auto bg-black/80 backdrop-blur-md border border-white/10 px-8 py-3 flex items-center gap-8 clip-path-navbar relative">
@@ -440,8 +426,6 @@ class DidacSystem extends Core {
             </div>
           </nav>
         );
-
-        // --- SECCIONES ---
 
         const Hero = () => (
           <section className="min-h-[90vh] flex items-center justify-center pt-20 px-6 relative">
@@ -467,7 +451,6 @@ class DidacSystem extends Core {
                     Somos <strong className="text-white">Didac-Click</strong>. Una entidad dedicada a orquestar Inteligencia Artificial para reescribir el código de la educación moderna.
                   </p>
                   
-                  {/* Stack de iconos */}
                   <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
                      {STACK.map((s,i) => (
                        <div key={i} className="w-10 h-10 flex items-center justify-center bg-white/5 border border-white/20 rounded hover:bg-white hover:text-black transition-all duration-300 cursor-crosshair" title={s.name}>
@@ -502,7 +485,7 @@ class DidacSystem extends Core {
                   <p className="text-gray-400 text-sm leading-relaxed font-mono">
                     &gt; Init Sequence: Human_Pedagogy + AI_Power<br/>
                     <br/>
-                    No desarrollamos software convencional; <strong className="text-white">creamos ecosistemas</strong> donde la tecnología y la pedagogía convergen para potenciar el aprendizaje.
+                    No desarrollamos software convencional; <strong className="text-white">creamos ecosistemas</strong> donde la tecnología y la pedagogía convergen para potenciar el aprendizaje y la gestión del conocimiento.
                   </p>
                 </div>
                 <div className="mt-8 flex gap-3">
@@ -510,7 +493,7 @@ class DidacSystem extends Core {
                      <Icons.Bot size={12}/> AI Powered
                    </div>
                    <div className="px-4 py-1 bg-white/5 border border-white/20 text-[10px] text-white font-tech uppercase tracking-wider flex items-center gap-2">
-                     <Icons.CheckCircle2 size={12}/> EdTech
+                     <Icons.GraduationCap size={12}/> EdTech
                    </div>
                 </div>
               </div>
@@ -569,7 +552,7 @@ class DidacSystem extends Core {
 
         const App = () => {
           return (
-            <div className="min-h-screen font-sans text-gray-200 selection:bg-white selection:text-black overflow-hidden">
+            <div className="min-h-screen font-sans text-gray-200 selection:bg-white selection:text-black overflow-hidden bg-black">
               <TechBackground show={true} />
               <div className="fixed inset-0 pointer-events-none opacity-[0.03] z-[1]" style={{backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`}}></div>
               <div className="animate-fade-in relative z-[2]">
@@ -585,19 +568,12 @@ class DidacSystem extends Core {
           );
         };
 
-        // Bloque de renderizado con manejo de errores para diagnosticar fallos de inicialización
         try {
             const root = ReactDOM.createRoot(document.getElementById('root'));
             root.render(<App />);
         } catch (error) {
-            console.error("Error crítico al renderizar la aplicación:", error);
-            document.getElementById('root').innerHTML = `
-                <div class="p-8 bg-red-900 text-white font-mono min-h-screen flex flex-col justify-center items-center">
-                    <h1 class="text-2xl font-bold mb-4">ERROR DE INICIALIZACIÓN DEL SISTEMA</h1>
-                    <p>La aplicación React falló al iniciarse. Esto podría deberse a que una librería no se cargó correctamente (ej. Three.js).</p>
-                    <p class="mt-4">Revise la consola del navegador para ver el error detallado.</p>
-                </div>
-            `;
+            console.error("Error crítico:", error);
+            document.getElementById('root').innerHTML = `<div class="p-8 text-white font-mono">Initialization Error</div>`;
         }
     </script>
 </body>
